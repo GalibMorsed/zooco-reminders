@@ -62,7 +62,7 @@ export function BottomNav({ active = "reminders" }: BottomNavProps) {
         )}
       >
         <svg
-          className="h-4.5 w-4.5"
+          className="h-5 w-5"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"

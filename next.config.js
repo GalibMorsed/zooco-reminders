@@ -3,6 +3,13 @@ const withPWA = require("next-pwa")({
   register: true,
   skipWaiting: true,
   disable: process.env.NODE_ENV === "development",
+  runtimeCaching: [
+    {
+      urlPattern: /^\/api\/(pets|reminders)(\/.*)?$/,
+      handler: "NetworkOnly",
+      method: "GET",
+    },
+  ],
 });
 
 /** @type {import('next').NextConfig} */

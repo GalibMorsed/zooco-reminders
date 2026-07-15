@@ -15,6 +15,7 @@ export interface Reminder {
   title: string;
   notes: string | null;
   start_date: string; // YYYY-MM-DD
+  end_date: string | null; // YYYY-MM-DD
   time: string; // HH:mm
   frequency: Frequency;
   status: Status;
@@ -30,6 +31,7 @@ export interface ReminderInput {
   title: string;
   notes?: string;
   start_date: string;
+  end_date?: string | null;
   time: string;
   frequency: Frequency;
 }

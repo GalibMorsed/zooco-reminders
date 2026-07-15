@@ -3,6 +3,14 @@ import { supabaseServer } from "@/lib/supabase-server";
 import { ReminderInput } from "@/types/reminder";
 import { validateReminderInput } from "@/lib/validation";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const fetchCache = "force-no-store";
+
+const noStoreHeaders = {
+  "Cache-Control": "no-store, max-age=0",
+};
+
 // GET /api/reminders?petId=...&category=...&status=...
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -22,10 +30,10 @@ export async function GET(request: NextRequest) {
   const { data, error } = await query;
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 500, headers: noStoreHeaders });
   }
 
-  return NextResponse.json({ reminders: data }, { status: 200 });
+  return NextResponse.json({ reminders: data }, { status: 200, headers: noStoreHeaders });
 }
 
 // POST /api/reminders  - create a new reminder
@@ -45,6 +53,7 @@ export async function POST(request: NextRequest) {
       title: body.title.trim(),
       notes: body.notes?.trim() || null,
       start_date: body.start_date,
+      end_date: body.end_date || null,
       time: body.time,
       frequency: body.frequency,
       status: "pending",
@@ -53,7 +62,7 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 500, headers: noStoreHeaders });
   }
-  return NextResponse.json({ reminder: data }, { status: 201 });
+  return NextResponse.json({ reminder: data }, { status: 201, headers: noStoreHeaders });
 }

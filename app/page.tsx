@@ -19,6 +19,29 @@ function getSlot(time: string): TimeSlot {
   return "Evening";
 }
 
+function getDayFromDateString(date: string): number {
+  const [year, month, day] = date.split("-").map(Number);
+  return new Date(year, month - 1, day).getDay();
+}
+
+function isReminderVisibleOnDate(reminder: Reminder, date: Date): boolean {
+  const selectedDate = format(date, "yyyy-MM-dd");
+
+  if (selectedDate < reminder.start_date) return false;
+  if (reminder.end_date && selectedDate > reminder.end_date) return false;
+
+  if (reminder.frequency === "Once") return selectedDate === reminder.start_date;
+  if (reminder.frequency === "Weekdays") {
+    const day = date.getDay();
+    return day >= 1 && day <= 5;
+  }
+  if (reminder.frequency === "Weekly") {
+    return date.getDay() === getDayFromDateString(reminder.start_date);
+  }
+
+  return true;
+}
+
 export default function ReminderOverviewPage() {
   const {
     pets,
@@ -77,6 +100,12 @@ export default function ReminderOverviewPage() {
     setIsSheetOpen(true);
   }
 
+  function handleViewAll() {
+    setSelectedPetId(null);
+    setSelectedCategory(null);
+    setShowFilters(false);
+  }
+
   async function handleSave(input: ReminderInput) {
     if (editingReminder) {
       const updated = await api.updateReminder(editingReminder.id, input);
@@ -102,20 +131,17 @@ export default function ReminderOverviewPage() {
       upsertReminder(updated);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update reminder.");
-      void loadData(); // revert on failure
+      void loadData();
     }
   }
 
-  // 1. Filter reminders by date (only show reminders starting on or before selectedDate, or recurring everyday)
-  // For simplicity and matching mockups, we show all reminders of selected filters, partitioned by status & type.
-  const completed = reminders.filter((r) => r.status === "completed");
-  const pending = reminders.filter((r) => r.status === "pending");
+  const visibleReminders = reminders.filter((r) => isReminderVisibleOnDate(r, selectedDate));
+  const completed = visibleReminders.filter((r) => r.status === "completed");
+  const pending = visibleReminders.filter((r) => r.status === "pending");
 
-  // Pending routine vs pending one-time goals
   const pendingRoutine = pending.filter((r) => r.frequency !== "Once");
   const pendingOneTime = pending.filter((r) => r.frequency === "Once");
 
-  // Group pending routine by time slot (Morning, Afternoon, Evening)
   const slots: TimeSlot[] = ["Morning", "Afternoon", "Evening"];
   const routineGroups = slots
     .map((slot) => ({
@@ -129,7 +155,11 @@ export default function ReminderOverviewPage() {
       {/* Top Header */}
       <header className="flex items-center justify-between">
         <h1 className="text-xl font-extrabold text-textPrimary lowercase">daily reminders</h1>
-        <button className="text-sm font-semibold text-textSecondary hover:text-textPrimary transition-colors lowercase">
+        <button
+          type="button"
+          onClick={handleViewAll}
+          className="text-sm font-semibold text-textSecondary hover:text-textPrimary transition-colors lowercase"
+        >
           view all
         </button>
       </header>
@@ -155,16 +185,19 @@ export default function ReminderOverviewPage() {
       {error && <p className="text-sm font-medium text-danger">{error}</p>}
       {isLoading && <p className="text-sm text-textSecondary animate-pulse">Loading reminders...</p>}
 
-      {/* Reminders List */}
-      {!isLoading && reminders.length === 0 && (
+      {/* Empty state */}
+      {!isLoading && visibleReminders.length === 0 && (
         <div className="flex flex-col items-center justify-center py-10 text-center">
           <p className="text-sm text-textSecondary">
-            no reminders yet — tap + to add your first one.
+            {reminders.length === 0
+              ? "no reminders yet — tap + to add your first one."
+              : "no reminders scheduled for this date."}
           </p>
         </div>
       )}
 
-      {!isLoading && reminders.length > 0 && (
+      {/* Reminders List */}
+      {!isLoading && visibleReminders.length > 0 && (
         <div className="flex flex-col gap-6">
           {/* 1. Pending Routine Reminders grouped by time slots */}
           {routineGroups.map((group, idx) => (
@@ -176,8 +209,8 @@ export default function ReminderOverviewPage() {
                   </span>
                   <span>{group.slot.toLowerCase()}</span>
                 </span>
-                
-                {/* Sliders filter icon (rendered on the first group/slot section header) */}
+
+                {/* Sliders filter icon on first slot header */}
                 {idx === 0 && (
                   <button
                     onClick={() => setShowFilters(!showFilters)}
@@ -186,7 +219,7 @@ export default function ReminderOverviewPage() {
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className="h-4.5 w-4.5 text-textPrimary stroke-[2.5px]"
+                      className="h-5 w-5 text-textPrimary stroke-[2.5px]"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -265,9 +298,21 @@ export default function ReminderOverviewPage() {
       <button
         onClick={openAddSheet}
         aria-label="Add reminder"
-        className="fixed bottom-24 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-2xl bg-accent text-3xl font-bold text-white shadow-lg transition-all hover:scale-105 active:scale-95 focus:outline-none"
+        className="fixed bottom-20 left-1/2 z-40 -translate-x-1/2 flex h-[60px] w-[60px] items-center justify-center rounded-[20px] bg-accent transition-all hover:scale-105 active:scale-95 focus:outline-none"
+        style={{ boxShadow: "0 8px 24px rgba(34,197,94,0.45), 0 2px 8px rgba(0,0,0,0.18)" }}
       >
-        +
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-8 w-8 text-white"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M12 5v14M5 12h14" />
+        </svg>
       </button>
 
       {/* Bottom Navigation */}

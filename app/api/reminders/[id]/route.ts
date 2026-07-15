@@ -3,6 +3,14 @@ import { supabaseServer } from "@/lib/supabase-server";
 import { ReminderInput } from "@/types/reminder";
 import { validateReminderInput } from "@/lib/validation";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const fetchCache = "force-no-store";
+
+const noStoreHeaders = {
+  "Cache-Control": "no-store, max-age=0",
+};
+
 interface Params {
   params: { id: string };
 }
@@ -16,10 +24,13 @@ export async function GET(_request: NextRequest, { params }: Params) {
     .single();
 
   if (error) {
-    return NextResponse.json({ error: "Reminder not found." }, { status: 404 });
+    return NextResponse.json(
+      { error: "Reminder not found." },
+      { status: 404, headers: noStoreHeaders }
+    );
   }
 
-  return NextResponse.json({ reminder: data }, { status: 200 });
+  return NextResponse.json({ reminder: data }, { status: 200, headers: noStoreHeaders });
 }
 
 // PUT /api/reminders/:id
@@ -44,6 +55,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
   const updatePayload: Record<string, unknown> = { ...body };
   if (body.title) updatePayload.title = body.title.trim();
   if (body.notes !== undefined) updatePayload.notes = body.notes?.trim() || null;
+  if (body.end_date !== undefined) updatePayload.end_date = body.end_date || null;
 
   // When a reminder is marked completed, bump the streak counter
   if (body.status === "completed") {
@@ -64,10 +76,10 @@ export async function PUT(request: NextRequest, { params }: Params) {
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 500, headers: noStoreHeaders });
   }
 
-  return NextResponse.json({ reminder: data }, { status: 200 });
+  return NextResponse.json({ reminder: data }, { status: 200, headers: noStoreHeaders });
 }
 
 // DELETE /api/reminders/:id
@@ -78,8 +90,8 @@ export async function DELETE(_request: NextRequest, { params }: Params) {
     .eq("id", params.id);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 500, headers: noStoreHeaders });
   }
 
-  return NextResponse.json({ success: true }, { status: 200 });
+  return NextResponse.json({ success: true }, { status: 200, headers: noStoreHeaders });
 }

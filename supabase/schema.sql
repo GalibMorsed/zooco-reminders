@@ -16,17 +16,36 @@ create table if not exists reminders (
   title text not null,
   notes text,
   start_date date not null,
+  end_date date,
   time time not null,
   frequency text not null check (frequency in ('Once', 'Everyday', 'Weekdays', 'Weekly')),
   status text not null default 'pending' check (status in ('pending', 'completed')),
   streak_count int not null default 0,
   created_at timestamptz default now(),
-  updated_at timestamptz default now()
+  updated_at timestamptz default now(),
+  constraint reminders_end_date_check check (end_date is null or end_date >= start_date)
 );
+
+alter table reminders add column if not exists end_date date;
+
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint
+    where conname = 'reminders_end_date_check'
+  ) then
+    alter table reminders
+      add constraint reminders_end_date_check
+      check (end_date is null or end_date >= start_date);
+  end if;
+end;
+$$;
 
 create index if not exists reminders_pet_id_idx on reminders (pet_id);
 create index if not exists reminders_status_idx on reminders (status);
 create index if not exists reminders_category_idx on reminders (category);
+create index if not exists reminders_date_range_idx on reminders (start_date, end_date);
 
 -- Keep updated_at fresh on every edit
 create or replace function set_updated_at()

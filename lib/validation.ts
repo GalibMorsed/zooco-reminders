@@ -6,7 +6,13 @@ export function validateReminderInput(body: Partial<ReminderInput>): string | nu
   if (!body.title || body.title.trim().length === 0) return "Reminder title is required.";
   if (body.title && body.title.length > 100) return "Title must be under 100 characters.";
   if (!body.start_date) return "Start date is required.";
+  if (body.end_date && body.start_date && body.end_date < body.start_date) {
+    return "End date cannot be before start date.";
+  }
   if (!body.time) return "Reminder time is required.";
   if (!body.frequency) return "Frequency is required.";
+  if (body.end_date && body.start_date === body.end_date && body.frequency !== "Once") {
+    return "Single-day reminders can only use Once.";
+  }
   return null;
 }
