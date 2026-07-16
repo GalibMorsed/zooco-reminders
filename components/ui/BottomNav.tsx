@@ -8,7 +8,7 @@ interface BottomNavProps {
 
 export function BottomNav({ active = "reminders" }: BottomNavProps) {
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 mx-auto flex max-w-md items-center justify-around border-t border-border bg-surface px-4 py-3 shadow-lg">
+    <nav className="fixed inset-x-0 bottom-0 z-40 mx-auto flex w-full max-w-3xl items-center justify-around border-t border-border bg-surface px-4 py-3 shadow-lg">
       {/* Home Tab */}
       <Link
         href="/"
@@ -90,27 +90,19 @@ export function BottomNav({ active = "reminders" }: BottomNavProps) {
       >
         <svg
           className="h-6 w-6"
-          viewBox="0 0 32 32"
+          viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
-          strokeWidth="1.8"
+          strokeWidth="2.2"
           strokeLinecap="round"
           strokeLinejoin="round"
         >
-          {/* Left floppy ear */}
-          <path d="M7 13 C4 9 4 3 8 3 C10 3 11 5 11 8" />
-          {/* Right floppy ear */}
-          <path d="M25 13 C28 9 28 3 24 3 C22 3 21 5 21 8" />
-          {/* Head circle */}
-          <circle cx="16" cy="17" r="9" />
-          {/* Left eye */}
-          <circle cx="12.5" cy="15" r="1.2" fill="currentColor" stroke="none" />
-          {/* Right eye */}
-          <circle cx="19.5" cy="15" r="1.2" fill="currentColor" stroke="none" />
-          {/* Nose */}
-          <ellipse cx="16" cy="19" rx="2.2" ry="1.5" fill="currentColor" stroke="none" />
-          {/* Mouth */}
-          <path d="M13.5 21.5 Q16 23.5 18.5 21.5" />
+          {/* Collar lines */}
+          <path d="M8 18h8M8 21h8" />
+          {/* Dog head profile */}
+          <path d="M8 18v-2c-1.5 0-3-.5-3-2s1-1.5 2.5-1.5c1 0 1.5-.5 1.5-1.5 0-2 2-3 4-3s4 1 4 3v7" />
+          {/* Floppy ear */}
+          <path d="M14 6.5c1.5 0 2.5 1 2.5 3s-1 3.5-2 3.5" />
         </svg>
       </Link>
     </nav>

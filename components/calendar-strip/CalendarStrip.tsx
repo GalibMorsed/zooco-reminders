@@ -46,16 +46,9 @@ export function CalendarStrip({
     return eachDayOfInterval({ start: gridStart, end: gridEnd });
   }, [selectedDate]);
 
-  // Mock streak dates if none provided
+  
   const activeStreakDates = useMemo(() => {
-    if (streakDates.length > 0) return streakDates;
-    const today = new Date();
-    return [
-      format(addDays(today, -1), "yyyy-MM-dd"),
-      format(addDays(today, -2), "yyyy-MM-dd"),
-      format(addDays(today, -3), "yyyy-MM-dd"),
-      format(addDays(today, -4), "yyyy-MM-dd"),
-    ];
+    return streakDates;
   }, [streakDates]);
 
   const streakCount = activeStreakDates.length;
@@ -80,7 +73,7 @@ export function CalendarStrip({
         <button
           key={day.toISOString()}
           onClick={() => onSelectDate(day)}
-          className="relative flex h-[64px] w-[36px] flex-col items-center justify-between rounded-full bg-black/20 py-2 focus:outline-none"
+          className="relative flex h-[64px] w-[36px] mx-auto flex-col items-center justify-between rounded-full bg-black/20 py-2 focus:outline-none"
         >
           <span className="h-1.5 w-1.5 rounded-full bg-white shadow-sm" />
           <span className="text-sm font-extrabold text-white">{format(day, "d")}</span>

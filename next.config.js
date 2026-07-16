@@ -6,8 +6,15 @@ const withPWA = require("next-pwa")({
   runtimeCaching: [
     {
       urlPattern: /^\/api\/(pets|reminders)(\/.*)?$/,
-      handler: "NetworkOnly",
+      handler: "NetworkFirst",
       method: "GET",
+      options: {
+        cacheName: "zooco-api",
+        expiration: {
+          maxEntries: 50,
+          maxAgeSeconds: 24 * 60 * 60,
+        },
+      },
     },
   ],
 });

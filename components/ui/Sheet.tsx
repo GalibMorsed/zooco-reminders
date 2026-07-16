@@ -12,7 +12,7 @@ export function Sheet({ isOpen, onClose, children }: SheetProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 mx-auto w-full max-w-md overflow-y-auto bg-background p-4 flex flex-col animate-slide-up">
+    <div className="fixed inset-0 z-50 mx-auto w-full max-w-3xl overflow-y-auto bg-background p-4 flex flex-col animate-slide-up">
       {children}
     </div>
   );

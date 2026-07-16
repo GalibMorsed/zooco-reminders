@@ -51,9 +51,16 @@ Frontend components → lib/api-client.ts → /api/reminders, /api/pets → Supa
   with error states, saved via the API.
 - **Edit Reminder**: same form component reused, pre-filled, with save/cancel.
 - **Delete Reminder**: permanent delete with confirmation via the danger button.
-- **Mark as done**: toggles status via `PUT /api/reminders/:id`, moves the card
-  to the Completed section with a CSS transition, and increments a streak counter.
-- **PWA**: manifest + service worker via `next-pwa`, installable on mobile/desktop.
+- **Mark as done**: toggles completion for the selected calendar date via
+  `PUT /api/reminders/:id`, moves the card to the Completed section, and stores
+  completion history for streaks.
+- **Streaks**: real completion dates are stored in `reminder_completions`; the
+  calendar strip highlights the current consecutive streak instead of mock data.
+- **Offline-first**: API reads are cached in `localStorage`, offline creates/
+  updates/deletes are queued locally, and queued work syncs automatically when
+  the browser comes back online.
+- **PWA**: manifest + service worker via `next-pwa`, installable on mobile/desktop,
+  with network-first API caching for production builds.
 
 ## Design matching
 
@@ -67,13 +74,11 @@ Icons in `public/icons/` are placeholders — export the real pet/walk/calendar
 icons from Figma as SVGs and drop them into `public/icons/` or inline them as
 components.
 
-## What's intentionally left as next steps
+## Polish notes
 
-- Wiring `date-fns` week navigation (prev/next week arrows) on the calendar strip.
-- Real streak calculation (currently a per-reminder counter; a full "days
-  completed in a row" view would aggregate across all reminders per day).
-- Offline-first caching (localStorage/IndexedDB) — bonus item, not yet implemented.
-- Empty/loading skeletons could be upgraded from plain text to shimmer placeholders.
+- Empty/loading states are intentionally lightweight to keep the mobile flow fast.
+- The API routes in `app/api/*` are the Node.js backend layer required by the
+  assignment; Supabase remains server-side only.
 
 ## Folder structure
 
@@ -81,7 +86,8 @@ components.
 app/
   api/reminders/route.ts        GET (list+filter), POST (create)
   api/reminders/[id]/route.ts   GET, PUT (edit + status toggle), DELETE
-  api/pets/route.ts             GET
+  api/pets/route.ts             GET, POST
+  pets/page.tsx                 Pet setup screen
   page.tsx                      Reminders Overview screen
   layout.tsx, manifest.ts       App shell + PWA manifest
 components/
@@ -92,6 +98,7 @@ components/
   ui/                           Button, Input, Select, Sheet, BottomNav
 lib/
   api-client.ts                 Frontend fetch wrappers (only Supabase-adjacent code)
+  offline-storage.ts            localStorage cache + offline mutation queue
   supabase-server.ts             Server-only Supabase client
   store.ts                      Zustand store
   group-reminders.ts             Groups reminders by time slot

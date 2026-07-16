@@ -11,6 +11,18 @@ const noStoreHeaders = {
   "Cache-Control": "no-store, max-age=0",
 };
 
+type ReminderRow = Record<string, unknown> & {
+  reminder_completions?: { completed_date: string }[] | null;
+};
+
+function normalizeReminder(row: ReminderRow) {
+  const { reminder_completions, ...reminder } = row;
+  return {
+    ...reminder,
+    completion_dates: reminder_completions?.map((item) => item.completed_date) ?? [],
+  };
+}
+
 // GET /api/reminders?petId=...&category=...&status=...
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -20,7 +32,7 @@ export async function GET(request: NextRequest) {
 
   let query = supabaseServer
     .from("reminders")
-    .select("*")
+    .select("*, reminder_completions(completed_date)")
     .order("time", { ascending: true });
 
   if (petId) query = query.eq("pet_id", petId);
@@ -33,7 +45,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500, headers: noStoreHeaders });
   }
 
-  return NextResponse.json({ reminders: data }, { status: 200, headers: noStoreHeaders });
+  return NextResponse.json(
+    { reminders: (data ?? []).map((row) => normalizeReminder(row as ReminderRow)) },
+    { status: 200, headers: noStoreHeaders }
+  );
 }
 
 // POST /api/reminders  - create a new reminder
@@ -48,6 +63,7 @@ export async function POST(request: NextRequest) {
   const { data, error } = await supabaseServer
     .from("reminders")
     .insert({
+      id: body.id,
       pet_id: body.pet_id,
       category: body.category,
       title: body.title.trim(),
@@ -58,11 +74,14 @@ export async function POST(request: NextRequest) {
       frequency: body.frequency,
       status: "pending",
     })
-    .select()
+    .select("*, reminder_completions(completed_date)")
     .single();
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500, headers: noStoreHeaders });
   }
-  return NextResponse.json({ reminder: data }, { status: 201, headers: noStoreHeaders });
+  return NextResponse.json(
+    { reminder: normalizeReminder(data as ReminderRow) },
+    { status: 201, headers: noStoreHeaders }
+  );
 }

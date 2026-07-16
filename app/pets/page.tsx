@@ -14,10 +14,31 @@ export default function PetsPage() {
   const [petType, setPetType] = useState("Dog");
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isOnline, setIsOnline] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    setIsOnline(navigator.onLine);
+    if (navigator.onLine) {
+      void api.syncOfflineQueue().then(() => loadPets()).catch(() => undefined);
+    }
     void loadPets();
+
+    function handleOnline() {
+      setIsOnline(true);
+      void api.syncOfflineQueue().then(() => loadPets()).catch(() => undefined);
+    }
+
+    function handleOffline() {
+      setIsOnline(false);
+    }
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -96,6 +117,12 @@ export default function PetsPage() {
           reminders
         </Link>
       </header>
+
+      {!isOnline && (
+        <div className="rounded-xl border border-border bg-surface px-4 py-2 text-xs font-bold text-textSecondary shadow-sm">
+          Offline mode: new pets will sync when your connection returns.
+        </div>
+      )}
 
       {/* ── Card: Add Pet ── */}
       <div className="overflow-hidden rounded-card border border-border bg-surface shadow-sm">
@@ -243,4 +270,3 @@ export default function PetsPage() {
     </main>
   );
 }
-

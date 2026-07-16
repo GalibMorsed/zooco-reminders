@@ -42,6 +42,26 @@ function isReminderVisibleOnDate(reminder: Reminder, date: Date): boolean {
   return true;
 }
 
+function withStatusForDate(reminder: Reminder, dateKey: string): Reminder {
+  return {
+    ...reminder,
+    status: reminder.completion_dates?.includes(dateKey) ? "completed" : "pending",
+  };
+}
+
+function getCurrentStreakDates(reminders: Reminder[]) {
+  const completedDates = new Set(reminders.flatMap((r) => r.completion_dates ?? []));
+  const cursor = new Date();
+  const streakDates: string[] = [];
+
+  while (completedDates.has(format(cursor, "yyyy-MM-dd"))) {
+    streakDates.push(format(cursor, "yyyy-MM-dd"));
+    cursor.setDate(cursor.getDate() - 1);
+  }
+
+  return streakDates;
+}
+
 export default function ReminderOverviewPage() {
   const {
     pets,
@@ -64,6 +84,32 @@ export default function ReminderOverviewPage() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [editingReminder, setEditingReminder] = useState<Reminder | null>(null);
   const [showFilters, setShowFilters] = useState(false);
+  const [isOnline, setIsOnline] = useState(true);
+
+  useEffect(() => {
+    setIsOnline(navigator.onLine);
+
+    if (typeof window !== "undefined" && navigator.onLine) {
+      void api.syncOfflineQueue().then(() => loadData()).catch(() => undefined);
+    }
+
+    function handleOnline() {
+      setIsOnline(true);
+      void api.syncOfflineQueue().then(() => loadData()).catch(() => undefined);
+    }
+
+    function handleOffline() {
+      setIsOnline(false);
+    }
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     void loadData();
@@ -125,9 +171,23 @@ export default function ReminderOverviewPage() {
   }
 
   async function handleToggleComplete(reminder: Reminder) {
-    upsertReminder(reminder);
+    const selectedDateKey = format(selectedDate, "yyyy-MM-dd");
+    const completionDates = new Set(reminder.completion_dates ?? []);
+    if (reminder.status === "completed") {
+      completionDates.add(selectedDateKey);
+    } else {
+      completionDates.delete(selectedDateKey);
+    }
+
+    upsertReminder({
+      ...reminder,
+      completion_dates: Array.from(completionDates),
+    });
     try {
-      const updated = await api.updateReminder(reminder.id, { status: reminder.status });
+      const updated = await api.updateReminder(reminder.id, {
+        status: reminder.status,
+        completed_on: selectedDateKey,
+      });
       upsertReminder(updated);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update reminder.");
@@ -135,7 +195,11 @@ export default function ReminderOverviewPage() {
     }
   }
 
-  const visibleReminders = reminders.filter((r) => isReminderVisibleOnDate(r, selectedDate));
+  const selectedDateKey = format(selectedDate, "yyyy-MM-dd");
+  const streakDates = getCurrentStreakDates(reminders);
+  const visibleReminders = reminders
+    .filter((r) => isReminderVisibleOnDate(r, selectedDate))
+    .map((r) => withStatusForDate(r, selectedDateKey));
   const completed = visibleReminders.filter((r) => r.status === "completed");
   const pending = visibleReminders.filter((r) => r.status === "pending");
 
@@ -164,9 +228,19 @@ export default function ReminderOverviewPage() {
         </button>
       </header>
 
+      {!isOnline && (
+        <div className="rounded-xl border border-border bg-surface px-4 py-2 text-xs font-bold text-textSecondary shadow-sm">
+          Offline mode: changes will sync when your connection returns.
+        </div>
+      )}
+
       {/* Streaks Strip */}
       <section>
-        <CalendarStrip selectedDate={selectedDate} onSelectDate={setSelectedDate} />
+        <CalendarStrip
+          selectedDate={selectedDate}
+          onSelectDate={setSelectedDate}
+          streakDates={streakDates}
+        />
       </section>
 
       {/* Filter Toggle & Section */}
@@ -298,7 +372,7 @@ export default function ReminderOverviewPage() {
       <button
         onClick={openAddSheet}
         aria-label="Add reminder"
-        className="fixed bottom-20 left-1/2 z-40 -translate-x-1/2 flex h-[60px] w-[60px] items-center justify-center rounded-[20px] bg-accent transition-all hover:scale-105 active:scale-95 focus:outline-none"
+        className="fixed bottom-24 right-6 md:right-[calc(50vw-384px+24px)] z-40 flex h-[60px] w-[60px] items-center justify-center rounded-[20px] bg-accent transition-all hover:scale-105 active:scale-95 focus:outline-none"
         style={{ boxShadow: "0 8px 24px rgba(34,197,94,0.45), 0 2px 8px rgba(0,0,0,0.18)" }}
       >
         <svg

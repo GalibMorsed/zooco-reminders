@@ -10,6 +10,7 @@ export interface Pet {
 }
 
 export interface PetInput {
+  id?: string;
   name: string;
   pet_type: string;
   avatar_url?: string | null;
@@ -27,12 +28,14 @@ export interface Reminder {
   frequency: Frequency;
   status: Status;
   streak_count: number;
+  completion_dates?: string[];
   created_at: string;
   updated_at: string;
 }
 
 // Shape used when creating/editing a reminder via the form
 export interface ReminderInput {
+  id?: string;
   pet_id: string;
   category: Category;
   title: string;

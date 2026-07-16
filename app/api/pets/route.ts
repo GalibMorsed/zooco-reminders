@@ -46,6 +46,7 @@ export async function POST(request: NextRequest) {
   const { data, error } = await supabaseServer
     .from("pets")
     .insert({
+      id: body.id,
       name,
       pet_type: petType,
       avatar_url: body.avatar_url || null,

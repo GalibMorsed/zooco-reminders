@@ -50,6 +50,16 @@ create index if not exists reminders_status_idx on reminders (status);
 create index if not exists reminders_category_idx on reminders (category);
 create index if not exists reminders_date_range_idx on reminders (start_date, end_date);
 
+create table if not exists reminder_completions (
+  reminder_id uuid references reminders(id) on delete cascade not null,
+  completed_date date not null,
+  created_at timestamptz default now(),
+  primary key (reminder_id, completed_date)
+);
+
+create index if not exists reminder_completions_completed_date_idx
+  on reminder_completions (completed_date);
+
 -- Keep updated_at fresh on every edit
 create or replace function set_updated_at()
 returns trigger as $$
