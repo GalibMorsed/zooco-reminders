@@ -1,5 +1,6 @@
 "use client";
 import clsx from "clsx";
+import Link from "next/link";
 
 interface BottomNavProps {
   active?: string;
@@ -9,7 +10,8 @@ export function BottomNav({ active = "reminders" }: BottomNavProps) {
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 mx-auto flex max-w-md items-center justify-around border-t border-border bg-surface px-4 py-3 shadow-lg">
       {/* Home Tab */}
-      <button
+      <Link
+        href="/"
         aria-label="Home"
         className={clsx(
           "flex items-center justify-center p-2 rounded-full focus:outline-none transition-colors",
@@ -28,7 +30,7 @@ export function BottomNav({ active = "reminders" }: BottomNavProps) {
           <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
           <polyline points="9 22 9 12 15 12 15 22" />
         </svg>
-      </button>
+      </Link>
 
       {/* Favorites Tab */}
       <button
@@ -52,7 +54,8 @@ export function BottomNav({ active = "reminders" }: BottomNavProps) {
       </button>
 
       {/* Active Reminders Tab */}
-      <button
+      <Link
+        href="/"
         aria-label="Reminders"
         className={clsx(
           "flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold lowercase transition-all focus:outline-none",
@@ -74,30 +77,42 @@ export function BottomNav({ active = "reminders" }: BottomNavProps) {
           <path strokeLinecap="round" strokeLinejoin="round" d="m14 17 2.5 2.5 4.5-4.5" />
         </svg>
         <span>reminders</span>
-      </button>
+      </Link>
 
-      {/* Profile/Diary Tab */}
-      <button
-        aria-label="Diary"
+      {/* Pet Tab — dog face */}
+      <Link
+        href="/pets"
+        aria-label="Pet"
         className={clsx(
           "flex items-center justify-center p-2 rounded-full focus:outline-none transition-colors",
-          active === "diary" ? "text-textPrimary" : "text-textSecondary hover:text-textPrimary"
+          active === "pet" ? "text-textPrimary" : "text-textSecondary hover:text-textPrimary"
         )}
       >
         <svg
           className="h-6 w-6"
-          viewBox="0 0 24 24"
+          viewBox="0 0 32 32"
           fill="none"
           stroke="currentColor"
-          strokeWidth="2"
+          strokeWidth="1.8"
           strokeLinecap="round"
           strokeLinejoin="round"
         >
-          <path d="M4 19.5V15a2 2 0 0 1 2-2h14" />
-          <path d="M20 21V5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z" />
-          <path d="M12 11V7" />
+          {/* Left floppy ear */}
+          <path d="M7 13 C4 9 4 3 8 3 C10 3 11 5 11 8" />
+          {/* Right floppy ear */}
+          <path d="M25 13 C28 9 28 3 24 3 C22 3 21 5 21 8" />
+          {/* Head circle */}
+          <circle cx="16" cy="17" r="9" />
+          {/* Left eye */}
+          <circle cx="12.5" cy="15" r="1.2" fill="currentColor" stroke="none" />
+          {/* Right eye */}
+          <circle cx="19.5" cy="15" r="1.2" fill="currentColor" stroke="none" />
+          {/* Nose */}
+          <ellipse cx="16" cy="19" rx="2.2" ry="1.5" fill="currentColor" stroke="none" />
+          {/* Mouth */}
+          <path d="M13.5 21.5 Q16 23.5 18.5 21.5" />
         </svg>
-      </button>
+      </Link>
     </nav>
   );
 }

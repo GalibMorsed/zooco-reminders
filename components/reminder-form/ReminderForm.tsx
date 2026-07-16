@@ -187,8 +187,15 @@ export function ReminderForm({
               <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accentMuted text-[11px]">
                 🐶
               </span>
-              <span className="text-sm font-bold text-textPrimary truncate">
-                {selectedPet?.name || "Choose Pet"}
+              <span className="flex min-w-0 flex-col">
+                <span className="truncate text-sm font-bold text-textPrimary">
+                  {selectedPet?.name || "Choose Pet"}
+                </span>
+                {selectedPet?.pet_type && (
+                  <span className="truncate text-[10px] font-semibold text-textSecondary">
+                    {selectedPet.pet_type}
+                  </span>
+                )}
               </span>
             </div>
             <svg
@@ -219,7 +226,12 @@ export function ReminderForm({
                   <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accentMuted text-[11px]">
                     🐶
                   </span>
-                  <span>{pet.name}</span>
+                  <span className="flex min-w-0 flex-col">
+                    <span className="truncate">{pet.name}</span>
+                    <span className="truncate text-[10px] font-semibold text-textSecondary">
+                      {pet.pet_type || "Pet"}
+                    </span>
+                  </span>
                 </div>
               ))}
             </div>

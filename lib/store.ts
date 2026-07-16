@@ -16,6 +16,7 @@ interface ReminderStore {
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
 
+  upsertPet: (pet: Pet) => void;
   upsertReminder: (reminder: Reminder) => void;
   removeReminder: (id: string) => void;
 }
@@ -34,6 +35,18 @@ export const useReminderStore = create<ReminderStore>((set) => ({
   setSelectedCategory: (category) => set({ selectedCategory: category }),
   setLoading: (isLoading) => set({ isLoading }),
   setError: (error) => set({ error }),
+
+  upsertPet: (pet) =>
+    set((state) => {
+      const exists = state.pets.some((p) => p.id === pet.id);
+      const pets = exists
+        ? state.pets.map((p) => (p.id === pet.id ? pet : p))
+        : [...state.pets, pet];
+
+      return {
+        pets: pets.sort((a, b) => a.name.localeCompare(b.name)),
+      };
+    }),
 
   upsertReminder: (reminder) =>
     set((state) => {

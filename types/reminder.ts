@@ -5,7 +5,14 @@ export type Status = "pending" | "completed";
 export interface Pet {
   id: string;
   name: string;
+  pet_type: string;
   avatar_url: string | null;
+}
+
+export interface PetInput {
+  name: string;
+  pet_type: string;
+  avatar_url?: string | null;
 }
 
 export interface Reminder {

@@ -5,9 +5,12 @@ create extension if not exists "uuid-ossp";
 create table if not exists pets (
   id uuid primary key default uuid_generate_v4(),
   name text not null,
+  pet_type text not null default 'Dog',
   avatar_url text,
   created_at timestamptz default now()
 );
+
+alter table pets add column if not exists pet_type text not null default 'Dog';
 
 create table if not exists reminders (
   id uuid primary key default uuid_generate_v4(),
@@ -62,9 +65,9 @@ before update on reminders
 for each row execute function set_updated_at();
 
 -- Seed data so the UI has something to render immediately
-insert into pets (id, name, avatar_url) values
-  ('11111111-1111-1111-1111-111111111111', 'Browny', null),
-  ('22222222-2222-2222-2222-222222222222', 'Milo', null)
+insert into pets (id, name, pet_type, avatar_url) values
+  ('11111111-1111-1111-1111-111111111111', 'Browny', 'Dog', null),
+  ('22222222-2222-2222-2222-222222222222', 'Milo', 'Dog', null)
 on conflict do nothing;
 
 insert into reminders (pet_id, category, title, notes, start_date, time, frequency, status)
