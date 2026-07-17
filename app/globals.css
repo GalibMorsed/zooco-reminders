@@ -82,3 +82,29 @@ input[type="time"]::-webkit-calendar-picker-indicator {
     transform: translateY(0) scale(1);
   }
 }
+
+@keyframes networkSlideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slowPulse {
+  0%, 100% { opacity: 0.25; transform: scale(0.85); }
+  50%       { opacity: 1;    transform: scale(1.1);  }
+}
+
+/* Shift bottom nav and FAB when network status is shown underneath */
+body.has-network-status .bottom-nav {
+  bottom: 36px !important;
+}
+
+body.has-network-status .fab-btn {
+  bottom: 132px !important; /* 96px (bottom-24) + 36px status bar height */
+}
+

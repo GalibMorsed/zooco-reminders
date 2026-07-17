@@ -228,11 +228,7 @@ export default function ReminderOverviewPage() {
         </button>
       </header>
 
-      {!isOnline && (
-        <div className="rounded-xl border border-border bg-surface px-4 py-2 text-xs font-bold text-textSecondary shadow-sm">
-          Offline mode: changes will sync when your connection returns.
-        </div>
-      )}
+
 
       {/* Streaks Strip */}
       <section>
@@ -372,7 +368,7 @@ export default function ReminderOverviewPage() {
       <button
         onClick={openAddSheet}
         aria-label="Add reminder"
-        className="fixed bottom-24 right-6 md:right-[calc(50vw-384px+24px)] z-40 flex h-[60px] w-[60px] items-center justify-center rounded-[20px] bg-accent transition-all hover:scale-105 active:scale-95 focus:outline-none"
+        className="fixed bottom-24 right-6 md:right-[calc(50vw-384px+24px)] z-40 flex h-[60px] w-[60px] items-center justify-center rounded-[20px] bg-accent transition-all hover:scale-105 active:scale-95 focus:outline-none fab-btn"
         style={{ boxShadow: "0 8px 24px rgba(34,197,94,0.45), 0 2px 8px rgba(0,0,0,0.18)" }}
       >
         <svg

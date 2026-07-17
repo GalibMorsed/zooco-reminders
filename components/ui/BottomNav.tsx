@@ -8,7 +8,7 @@ interface BottomNavProps {
 
 export function BottomNav({ active = "reminders" }: BottomNavProps) {
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 mx-auto flex w-full max-w-3xl items-center justify-around border-t border-border bg-surface px-4 py-3 shadow-lg">
+    <nav className="fixed inset-x-0 bottom-0 z-40 mx-auto flex w-full max-w-3xl items-center justify-around border-t border-border bg-surface px-4 py-3 shadow-lg transition-all duration-300 ease-out bottom-nav">
       {/* Home Tab */}
       <Link
         href="/"

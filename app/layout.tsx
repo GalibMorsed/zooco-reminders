@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { NetworkStatusBar } from "@/components/ui/NetworkStatusBar";
 
 export const metadata: Metadata = {
   title: "Daily Reminders - ZOOCO",
@@ -27,6 +28,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="mx-auto w-full max-w-3xl min-h-screen bg-background pb-20">
         {children}
+        <NetworkStatusBar />
       </body>
     </html>
   );

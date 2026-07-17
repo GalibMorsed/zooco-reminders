@@ -118,11 +118,7 @@ export default function PetsPage() {
         </Link>
       </header>
 
-      {!isOnline && (
-        <div className="rounded-xl border border-border bg-surface px-4 py-2 text-xs font-bold text-textSecondary shadow-sm">
-          Offline mode: new pets will sync when your connection returns.
-        </div>
-      )}
+
 
       {/* ── Card: Add Pet ── */}
       <div className="overflow-hidden rounded-card border border-border bg-surface shadow-sm">
